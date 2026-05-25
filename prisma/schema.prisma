@@ -18,3 +18,10 @@ model Project {
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
+
+model Admin{
+  id Int @id @default(autoincrement())
+  email String @unique
+  password String 
+  createdAt DateTime @default(now())
+}

@@ -16,7 +16,17 @@ export const createProject = async(
             imageUrl,
             featured,
         } = req.body;
-
+if (
+  !title ||
+  !description ||
+  !techStack ||
+  techStack.length === 0
+) {
+  return res.status(400).json({
+    message:
+      "Title, description, and tech stack are required.",
+  });
+}
         const project = await prisma.project.create({
             data: {
                 title,

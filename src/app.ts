@@ -4,7 +4,8 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import morgan from "morgan";
 
-import projectRoutes from "./routes/project.routes"; 
+import projectRoutes from "./routes/project.routes";
+import authRoutes from "./routes/authRoutes"; 
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 app.use("/api/projects", projectRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Portfolio API Running");
