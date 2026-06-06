@@ -1,9 +1,17 @@
 import express from "express";
 
-import { loginAdmin } from "../controllers/authController";
+import {
+  loginAdmin,
+  forgotPassword,
+  resetPassword,
+} from "../controllers/authController";
 
 const router = express.Router();
 
 router.post("/login", loginAdmin);
+
+router.post("/forgot-password", forgotPassword);
+
+router.post("/reset-password", resetPassword);
 
 export default router;
