@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { sendEmail } from "../utils/sendEmail";
 
 const prisma = new PrismaClient();
 
@@ -90,11 +91,28 @@ export const forgotPassword = async (
         resetTokenExpiry,
       },
     });
+    const resetLink =
+  `${process.env.FRONTEND_URL}/admin/reset-password?token=${resetToken}`;
+
+await sendEmail(
+  admin.email,
+  "Password Reset Request",
+  `
+    <h2>Password Reset</h2>
+
+    <p>Click the link below to reset your password:</p>
+
+    <a href="${resetLink}">
+      Reset Password
+    </a>
+
+    <p>This link expires in 15 minutes.</p>
+  `
+);
 
     return res.status(200).json({
-      message: "Reset token generated",
-      resetToken,
-    });
+  message: "Password reset email sent",
+});
 
   } catch (error) {
     console.error(error);
