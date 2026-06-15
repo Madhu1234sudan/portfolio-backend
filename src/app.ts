@@ -1,13 +1,16 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express, { Request, Response } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+import researchRoutes from "./routes/research.routes";
+
 import helmet from "helmet";
 import morgan from "morgan";
 
+import uploadRoutes from "./routes/uploadRoutes";
 import projectRoutes from "./routes/project.routes";
 import authRoutes from "./routes/authRoutes"; 
 
-dotenv.config();
 
 const app = express();
 
@@ -16,8 +19,11 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan("dev"));
 
+
 app.use("/api/projects", projectRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/research", researchRoutes);
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Portfolio API Running");

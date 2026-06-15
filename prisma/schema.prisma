@@ -18,6 +18,25 @@ model Project {
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
+model Research {
+  id             Int      @id @default(autoincrement())
+
+  title          String
+  abstract       String
+  description    String
+
+  researchImage  String?
+
+  pdfUrl         String?
+  githubUrl      String?
+  publicationUrl String?
+
+  tags           String[]
+
+  featured       Boolean  @default(false)
+
+  createdAt      DateTime @default(now())
+}
 
 model Admin{
   id Int @id @default(autoincrement())
