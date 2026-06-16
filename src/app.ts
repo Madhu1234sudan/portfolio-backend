@@ -3,6 +3,9 @@ dotenv.config();
 import express, { Request, Response } from "express";
 import cors from "cors";
 import researchRoutes from "./routes/research.routes";
+import profileRoutes from "./routes/profile.routes";
+
+
 
 import helmet from "helmet";
 import morgan from "morgan";
@@ -24,6 +27,7 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/research", researchRoutes);
+app.use("/api/profile", profileRoutes);
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Portfolio API Running");

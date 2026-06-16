@@ -48,3 +48,33 @@ model Admin{
 
   createdAt DateTime @default(now())
 }
+model Profile {
+  id Int @id @default(autoincrement())
+
+  fullName String
+
+  headline String
+
+  shortBio String
+
+  aboutMe String
+
+  profileImage String?
+
+  resumeUrl String?
+
+  email String?
+
+  location String?
+
+  githubUrl String?
+
+  linkedinUrl String?
+
+  kaggleUrl String?
+
+  twitterUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
