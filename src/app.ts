@@ -4,6 +4,8 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import researchRoutes from "./routes/research.routes";
 import profileRoutes from "./routes/profile.routes";
+import skillRoutes from "./routes/skill.routes";
+import skillCategoryRoutes from "./routes/skillCategory.routes";
 
 
 
@@ -28,6 +30,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/research", researchRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/skills", skillRoutes);
+app.use("/api/skill-categories",skillCategoryRoutes);
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Portfolio API Running");
