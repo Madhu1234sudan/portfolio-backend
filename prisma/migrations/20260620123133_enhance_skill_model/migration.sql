@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Skill" ADD COLUMN     "displayOrder" INTEGER NOT NULL DEFAULT 1,
+ADD COLUMN     "featured" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "icon" TEXT,
+ADD COLUMN     "level" INTEGER DEFAULT 80;

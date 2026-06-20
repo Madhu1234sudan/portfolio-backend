@@ -18,36 +18,38 @@ model Project {
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
+
 model Research {
-  id             Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  title          String
-  abstract       String
-  description    String
+  title       String
+  abstract    String
+  description String
 
-  researchImage  String?
+  researchImage String?
 
   pdfUrl         String?
   githubUrl      String?
   publicationUrl String?
 
-  tags           String[]
+  tags String[]
 
-  featured       Boolean  @default(false)
+  featured Boolean @default(false)
 
-  createdAt      DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
-model Admin{
-  id Int @id @default(autoincrement())
-  email String @unique
+model Admin {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
   password String
 
-  resetToken String?
+  resetToken       String?
   resetTokenExpiry DateTime?
 
   createdAt DateTime @default(now())
 }
+
 model Profile {
   id Int @id @default(autoincrement())
 
@@ -78,28 +80,60 @@ model Profile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model SkillCategory {
-  id        Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  title     String
+  title String
 
-  icon      String?
+  icon String?
 
-  order     Int      @default(0)
+  order Int @default(0)
 
-  skills    Skill[]
+  skills Skill[]
 
   createdAt DateTime @default(now())
 }
 
 model Skill {
-  id          Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  name        String
+  name String
 
-  categoryId  Int
+  level Int? @default(80)
 
-  category    SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  icon String?
 
-  createdAt   DateTime @default(now())
+  displayOrder Int @default(1)
+
+  featured Boolean @default(false)
+
+  categoryId Int
+
+  category SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Experience {
+  id Int @id @default(autoincrement())
+
+  company  String
+  position String
+
+  location String?
+
+  startDate DateTime
+  endDate   DateTime?
+
+  currentlyWorking Boolean @default(false)
+
+  description String
+
+  companyLogo String?
+
+  displayOrder Int @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

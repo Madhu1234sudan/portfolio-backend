@@ -6,6 +6,7 @@ import researchRoutes from "./routes/research.routes";
 import profileRoutes from "./routes/profile.routes";
 import skillRoutes from "./routes/skill.routes";
 import skillCategoryRoutes from "./routes/skillCategory.routes";
+import experienceRoutes from "./routes/experience.routes";
 
 
 
@@ -32,6 +33,7 @@ app.use("/api/research", researchRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/skills", skillRoutes);
 app.use("/api/skill-categories",skillCategoryRoutes);
+app.use("/api/experience",experienceRoutes);
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Portfolio API Running");

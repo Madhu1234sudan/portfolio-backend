@@ -6,7 +6,14 @@ export const createSkill = async (
   res: Response
 ) => {
   try {
-    const { name, categoryId } = req.body;
+    const {
+  name,
+  categoryId,
+  level,
+  icon,
+  displayOrder,
+  featured,
+} = req.body;
 
     if (!name || !categoryId) {
       return res.status(400).json({
@@ -15,11 +22,18 @@ export const createSkill = async (
     }
 
     const skill = await prisma.skill.create({
-      data: {
-        name,
-        categoryId: Number(categoryId),
-      },
-    });
+  data: {
+    name,
+    categoryId: Number(categoryId),
+    level,
+    icon,
+    displayOrder,
+    featured,
+  },
+  include: {
+    category: true,
+  },
+});
 
     res.status(201).json(skill);
   } catch (error) {
@@ -37,16 +51,17 @@ export const getSkills = async (
 ) => {
   try {
     const skills =
-      await prisma.skillCategory.findMany({
+      await prisma.skill.findMany({
         include: {
-          skills: true,
+          category: true,
         },
         orderBy: {
-          order: "asc",
+          name: "asc",
         },
       });
 
     res.status(200).json(skills);
+
   } catch (error) {
     console.error(error);
 
@@ -65,20 +80,29 @@ export const updateSkill = async (
 
     const {
       name,
+      level,
+      icon,
+      displayOrder,
+      featured,
       categoryId,
     } = req.body;
 
-    const skill =
-      await prisma.skill.update({
-        where: {
-          id: Number(id),
-        },
-        data: {
-          name,
-          categoryId:
-            Number(categoryId),
-        },
-      });
+    const skill = await prisma.skill.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        name,
+        level,
+        icon,
+        displayOrder,
+        featured,
+        categoryId: Number(categoryId),
+      },
+      include: {
+        category: true,
+      },
+    });
 
     res.status(200).json(skill);
 
@@ -86,12 +110,10 @@ export const updateSkill = async (
     console.error(error);
 
     res.status(500).json({
-      message:
-        "Failed to update skill",
+      message: "Failed to update skill",
     });
   }
 };
-
 export const deleteSkill = async (
   req: Request,
   res: Response
@@ -106,16 +128,14 @@ export const deleteSkill = async (
     });
 
     res.status(200).json({
-      message:
-        "Skill deleted successfully",
+      message: "Skill deleted successfully",
     });
 
   } catch (error) {
     console.error(error);
 
     res.status(500).json({
-      message:
-        "Failed to delete skill",
+      message: "Failed to delete skill",
     });
   }
 };
