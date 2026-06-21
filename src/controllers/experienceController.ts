@@ -17,6 +17,36 @@ export const createExperience = async (
       companyLogo,
       displayOrder,
     } = req.body;
+    if (!company?.trim()) {
+  return res.status(400).json({
+    message: "Company is required.",
+  });
+}
+
+if (!position?.trim()) {
+  return res.status(400).json({
+    message: "Position is required.",
+  });
+}
+
+if (!startDate) {
+  return res.status(400).json({
+    message: "Start Date is required.",
+  });
+}
+
+if (!description?.trim()) {
+  return res.status(400).json({
+    message: "Description is required.",
+  });
+}
+const parsedStartDate = new Date(startDate);
+
+if (isNaN(parsedStartDate.getTime())) {
+  return res.status(400).json({
+    message: "Invalid Start Date.",
+  });
+}
 
     const experience =
       await prisma.experience.create({
@@ -24,7 +54,7 @@ export const createExperience = async (
           company,
           position,
           location,
-          startDate: new Date(startDate),
+          startDate: parsedStartDate,
           endDate: endDate
             ? new Date(endDate)
             : null,
@@ -87,6 +117,13 @@ export const updateExperience = async (
       companyLogo,
       displayOrder,
     } = req.body;
+    const parsedStartDate = new Date(startDate);
+
+if (isNaN(parsedStartDate.getTime())) {
+  return res.status(400).json({
+    message: "Invalid Start Date.",
+  });
+}
 
     const experience =
       await prisma.experience.update({
@@ -97,7 +134,7 @@ export const updateExperience = async (
           company,
           position,
           location,
-          startDate: new Date(startDate),
+          startDate: parsedStartDate,
           endDate: endDate
             ? new Date(endDate)
             : null,
