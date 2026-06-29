@@ -1,61 +1,52 @@
 import { Request, Response } from "express";
-import prisma from "../config/prisma";
-
+import { SkillCategoryService } from "../services/skillCategory.service";
+const skillCategoryService = new SkillCategoryService();
 export const createCategory = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const { title, order } = req.body;;
 
-    if (!title) {
-      return res.status(400).json({
-        message: "Category name is required.",
-      });
-    }
+    const {
+      title,
+      icon,
+      order,
+    } = req.body;
 
     const category =
-      await prisma.skillCategory.create({
-        data: {
-          title,
-          order,
-        },
-      });
+  await skillCategoryService.createCategory({
+  title,
+  icon,
+  order: order,
+});
 
-    res.status(201).json(category);
+    return res.status(201).json(
+      category
+    );
 
   } catch (error) {
-    console.error(error);
 
-    res.status(500).json({
-      message: "Failed to create category",
-    });
+    throw error;
+
   }
 };
-
 export const getCategories = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const categories =
-      await prisma.skillCategory.findMany({
-        include: {
-          skills: true,
-        },
-        orderBy: {
-          order: "asc",
-        },
-      });
 
-    res.status(200).json(categories);
+    const categories =
+  await skillCategoryService.getCategories();
+
+    return res.status(200).json(
+      categories
+    );
 
   } catch (error) {
-    console.error(error);
 
-    res.status(500).json({
-      message: "Failed to fetch categories",
-    });
+    throw error;
+
   }
 };
 
@@ -64,29 +55,33 @@ export const updateCategory = async (
   res: Response
 ) => {
   try {
+
     const { id } = req.params;
 
-    const { title, order } = req.body;
+    const {
+      title,
+      icon,
+      order,
+    } = req.body;
 
     const category =
-      await prisma.skillCategory.update({
-        where: {
-          id: Number(id),
-        },
-        data: {
-          title,
-          order,
-        },
-      });
+  await skillCategoryService.updateCategory(
+    Number(id),
+    {
+      title,
+      icon,
+      order,
+    }
+  );
 
-    res.status(200).json(category);
+    return res.status(200).json(
+      category
+    );
 
   } catch (error) {
-    console.error(error);
 
-    res.status(500).json({
-      message: "Failed to update category",
-    });
+    throw error;
+
   }
 };
 
@@ -95,23 +90,20 @@ export const deleteCategory = async (
   res: Response
 ) => {
   try {
+
     const { id } = req.params;
 
-    await prisma.skillCategory.delete({
-      where: {
-        id: Number(id),
-      },
-    });
+    await skillCategoryService.deleteCategory(
+  Number(id)
+);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Category deleted successfully",
     });
 
   } catch (error) {
-    console.error(error);
 
-    res.status(500).json({
-      message: "Failed to delete category",
-    });
+    throw error;
+
   }
 };

@@ -4,6 +4,14 @@ import {
   getProfile,
   updateProfile,
 } from "../controllers/profileController";
+import { validate } from "../middleware/validation.middleware";
+
+import {
+  fullNameRequired,
+  headlineRequired,
+  shortBioRequired,
+  aboutMeRequired,
+} from "../validators/profile.validator";
 
 import {
   authenticateAdmin,
@@ -19,6 +27,12 @@ router.get(
 router.put(
   "/",
   authenticateAdmin,
+  validate(
+    fullNameRequired,
+    headlineRequired,
+    shortBioRequired,
+    aboutMeRequired
+  ),
   updateProfile
 );
 

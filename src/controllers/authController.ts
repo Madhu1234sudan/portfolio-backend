@@ -1,19 +1,36 @@
 import crypto from "crypto";
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import { AuthRequest } from "../middleware/authMiddleware";
+import prisma from "../config/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../utils/sendEmail";
 
-const prisma = new PrismaClient();
-
-export const loginAdmin = async (
-  req: Request,
-  res: Response
-) => {
+export const loginAdmin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+    // console.log("LOGIN BODY:", req.body);
+    if (!email?.trim()) {
+       console.log("Email validation failed");
+      return res.status(400).json({
+        message: "Email is required.",
+      });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    if (!emailRegex.test(email)) {
+      //  console.log("Email format failed");
+      return res.status(400).json({
+        message: "Invalid email format.",
+      });
+    }
+
+    if (!password?.trim()) {
+      //  console.log("Password validation failed");
+      return res.status(400).json({
+        message: "Password is required.",
+      });
+    }
     const admin = await prisma.admin.findUnique({
       where: { email },
     });
@@ -24,33 +41,33 @@ export const loginAdmin = async (
       });
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      admin.password
-    );
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
 
     if (!isPasswordValid) {
       return res.status(401).json({
         message: "Invalid credentials",
       });
     }
+    const jwtSecret = process.env.JWT_SECRET;
 
+    if (!jwtSecret) {
+      throw new Error("JWT_SECRET is not configured.");
+    }
     const token = jwt.sign(
       {
         adminId: admin.id,
         email: admin.email,
       },
-      process.env.JWT_SECRET as string,
+      jwtSecret,
       {
         expiresIn: "7d",
-      }
+      },
     );
 
     return res.status(200).json({
       message: "Login successful",
       token,
     });
-
   } catch (error) {
     console.error(error);
 
@@ -59,13 +76,49 @@ export const loginAdmin = async (
     });
   }
 };
-export const forgotPassword = async (
-  req: Request,
-  res: Response
-) => {
+export const getCurrentAdmin = async (req: AuthRequest, res: Response) => {
+  try {
+    const admin = await prisma.admin.findUnique({
+      where: {
+        id: req.admin.adminId,
+      },
+      select: {
+        id: true,
+        email: true,
+        createdAt: true,
+      },
+    });
+
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin not found",
+      });
+    }
+
+    return res.status(200).json(admin);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+export const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
+    if (!email?.trim()) {
+      return res.status(400).json({
+        message: "Email is required.",
+      });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message: "Invalid email format.",
+      });
+    }
     const admin = await prisma.admin.findUnique({
       where: { email },
     });
@@ -78,9 +131,7 @@ export const forgotPassword = async (
 
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    const resetTokenExpiry = new Date(
-      Date.now() + 1000 * 60 * 15
-    );
+    const resetTokenExpiry = new Date(Date.now() + 1000 * 60 * 15);
 
     await prisma.admin.update({
       where: {
@@ -91,13 +142,12 @@ export const forgotPassword = async (
         resetTokenExpiry,
       },
     });
-    const resetLink =
-  `${process.env.FRONTEND_URL}/admin/reset-password?token=${resetToken}`;
+    const resetLink = `${process.env.FRONTEND_URL}/admin/reset-password?token=${resetToken}`;
 
-await sendEmail(
-  admin.email,
-  "Password Reset Request",
-  `
+    await sendEmail(
+      admin.email,
+      "Password Reset Request",
+      `
     <h2>Password Reset</h2>
 
     <p>Click the link below to reset your password:</p>
@@ -107,13 +157,12 @@ await sendEmail(
     </a>
 
     <p>This link expires in 15 minutes.</p>
-  `
-);
+  `,
+    );
 
     return res.status(200).json({
-  message: "Password reset email sent",
-});
-
+      message: "Password reset email sent",
+    });
   } catch (error) {
     console.error(error);
 
@@ -122,13 +171,25 @@ await sendEmail(
     });
   }
 };
-export const resetPassword = async (
-  req: Request,
-  res: Response
-) => {
+export const resetPassword = async (req: Request, res: Response) => {
   try {
     const { token, newPassword } = req.body;
+    if (!token?.trim()) {
+      return res.status(400).json({
+        message: "Reset token is required.",
+      });
+    }
 
+    if (!newPassword?.trim()) {
+      return res.status(400).json({
+        message: "New password is required.",
+      });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters long.",
+      });
+    }
     const admin = await prisma.admin.findFirst({
       where: {
         resetToken: token,
@@ -144,10 +205,7 @@ export const resetPassword = async (
       });
     }
 
-    const hashedPassword = await bcrypt.hash(
-      newPassword,
-      10
-    );
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await prisma.admin.update({
       where: {
@@ -163,7 +221,6 @@ export const resetPassword = async (
     return res.status(200).json({
       message: "Password reset successful",
     });
-
   } catch (error) {
     console.error(error);
 

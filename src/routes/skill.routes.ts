@@ -6,6 +6,12 @@ import {
   updateSkill,
   deleteSkill,
 } from "../controllers/skillController";
+import { validate } from "../middleware/validation.middleware";
+
+import {
+  skillNameRequired,
+  skillCategoryRequired,
+} from "../validators/skill.validator";
 
 import { authenticateAdmin } from "../middleware/authMiddleware";
 
@@ -16,12 +22,20 @@ router.get("/", getSkills);
 router.post(
   "/",
   authenticateAdmin,
+  validate(
+    skillNameRequired,
+    skillCategoryRequired
+  ),
   createSkill
 );
 
 router.put(
   "/:id",
   authenticateAdmin,
+  validate(
+    skillNameRequired,
+    skillCategoryRequired
+  ),
   updateSkill
 );
 

@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
+import { ExperienceService } from "../services/experience.service";
 
+const experienceService = new ExperienceService();
 export const createExperience = async (
   req: Request,
   res: Response
@@ -47,23 +49,30 @@ if (isNaN(parsedStartDate.getTime())) {
     message: "Invalid Start Date.",
   });
 }
+let parsedEndDate: Date | null = null;
 
+if (endDate) {
+  parsedEndDate = new Date(endDate);
+
+  if (isNaN(parsedEndDate.getTime())) {
+    return res.status(400).json({
+      message: "Invalid End Date.",
+    });
+  }
+}
+  
     const experience =
-      await prisma.experience.create({
-        data: {
-          company,
-          position,
-          location,
-          startDate: parsedStartDate,
-          endDate: endDate
-            ? new Date(endDate)
-            : null,
-          currentlyWorking,
-          description,
-          companyLogo,
-          displayOrder,
-        },
-      });
+  await experienceService.createExperience({
+  company,
+  position,
+  location,
+  startDate: parsedStartDate,
+endDate: parsedEndDate ?? undefined,
+  currentlyWorking,
+  description,
+  companyLogo,
+  displayOrder,
+});
 
     res.status(201).json(experience);
 
@@ -81,12 +90,8 @@ export const getExperiences = async (
   res: Response
 ) => {
   try {
-    const experiences =
-      await prisma.experience.findMany({
-        orderBy: {
-          displayOrder: "asc",
-        },
-      });
+      const experiences =
+  await experienceService.getExperiences();
 
     res.status(200).json(experiences);
 
@@ -104,7 +109,13 @@ export const updateExperience = async (
   res: Response
 ) => {
   try {
-    const { id } = req.params;
+    const id = Number(req.params.id);
+
+if (isNaN(id)) {
+  return res.status(400).json({
+    message: "Invalid experience ID.",
+  });
+}
 
     const {
       company,
@@ -124,28 +135,44 @@ if (isNaN(parsedStartDate.getTime())) {
     message: "Invalid Start Date.",
   });
 }
+let parsedEndDate: Date | null = null;
 
-    const experience =
-      await prisma.experience.update({
-        where: {
-          id: Number(id),
-        },
-        data: {
-          company,
-          position,
-          location,
-          startDate: parsedStartDate,
-          endDate: endDate
-            ? new Date(endDate)
-            : null,
-          currentlyWorking,
-          description,
-          companyLogo,
-          displayOrder,
-        },
-      });
+if (endDate) {
+  parsedEndDate = new Date(endDate);
 
-    res.status(200).json(experience);
+  if (isNaN(parsedEndDate.getTime())) {
+    return res.status(400).json({
+      message: "Invalid End Date.",
+    });
+  }
+}
+const existingExperience =
+  await prisma.experience.findUnique({
+    where: { id },
+  });
+
+if (!existingExperience) {
+  return res.status(404).json({
+    message: "Experience not found.",
+  });
+}
+    const updatedExperience =
+  await experienceService.updateExperience(
+    Number(id),
+    {
+      company,
+      position,
+      location,
+      startDate: parsedStartDate,
+      endDate: parsedEndDate ?? undefined,
+      currentlyWorking,
+      description,
+      companyLogo,
+      displayOrder,
+    }
+  );
+
+    return res.status(200).json(updatedExperience);
 
   } catch (error) {
     console.error(error);
@@ -161,13 +188,26 @@ export const deleteExperience = async (
   res: Response
 ) => {
   try {
-    const { id } = req.params;
+    const id = Number(req.params.id);
 
-    await prisma.experience.delete({
-      where: {
-        id: Number(id),
-      },
-    });
+if (isNaN(id)) {
+  return res.status(400).json({
+    message: "Invalid experience ID.",
+  });
+}
+const existingExperience =
+  await prisma.experience.findUnique({
+    where: { id },
+  });
+
+if (!existingExperience) {
+  return res.status(404).json({
+    message: "Experience not found.",
+  });
+}
+    await experienceService.deleteExperience(
+  Number(id)
+);
 
     res.status(200).json({
       message: "Experience deleted successfully",

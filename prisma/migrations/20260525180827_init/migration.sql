@@ -3,7 +3,7 @@ CREATE TABLE "Project" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "techStack" TEXT[],
+    "techStack" TEXT,
     "githubUrl" TEXT,
     "liveUrl" TEXT,
     "imageUrl" TEXT,

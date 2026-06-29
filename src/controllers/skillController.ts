@@ -1,73 +1,55 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
-
+import { SkillService } from "../services/skill.service";
+const skillService = new SkillService();
 export const createSkill = async (
   req: Request,
   res: Response
 ) => {
   try {
     const {
+      name,
+      categoryId,
+      level,
+      icon,
+      order,
+      featured,
+    } = req.body;
+
+    const skill = await skillService.createSkill({
   name,
-  categoryId,
   level,
   icon,
-  displayOrder,
+  order,
   featured,
-} = req.body;
-
-    if (!name || !categoryId) {
-      return res.status(400).json({
-        message: "Name and category are required.",
-      });
-    }
-
-    const skill = await prisma.skill.create({
-  data: {
-    name,
-    categoryId: Number(categoryId),
-    level,
-    icon,
-    displayOrder,
-    featured,
-  },
-  include: {
-    category: true,
-  },
+  categoryId,
 });
+    return res.status(201).json(
+      skill
+    );
 
-    res.status(201).json(skill);
   } catch (error) {
-    console.error(error);
 
-    res.status(500).json({
-      message: "Failed to create skill",
-    });
+    throw error;
+
   }
 };
-
 export const getSkills = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const skills =
-      await prisma.skill.findMany({
-        include: {
-          category: true,
-        },
-        orderBy: {
-          name: "asc",
-        },
-      });
 
-    res.status(200).json(skills);
+    const skills = await skillService.getSkills();
+
+    return res.status(200).json(
+      skills
+    );
 
   } catch (error) {
-    console.error(error);
 
-    res.status(500).json({
-      message: "Failed to fetch skills",
-    });
+    throw error;
+
   }
 };
 
@@ -76,42 +58,38 @@ export const updateSkill = async (
   res: Response
 ) => {
   try {
+
     const { id } = req.params;
 
     const {
       name,
       level,
       icon,
-      displayOrder,
+      order,
       featured,
       categoryId,
     } = req.body;
 
-    const skill = await prisma.skill.update({
-      where: {
-        id: Number(id),
-      },
-      data: {
-        name,
-        level,
-        icon,
-        displayOrder,
-        featured,
-        categoryId: Number(categoryId),
-      },
-      include: {
-        category: true,
-      },
-    });
-
-    res.status(200).json(skill);
+    const updatedSkill =
+  await skillService.updateSkill(
+    Number(id),
+    {
+      name,
+      level,
+      icon,
+      order,
+      featured,
+      categoryId,
+    }
+  );
+    return res.status(200).json(
+  updatedSkill
+);
 
   } catch (error) {
-    console.error(error);
 
-    res.status(500).json({
-      message: "Failed to update skill",
-    });
+    throw error;
+
   }
 };
 export const deleteSkill = async (
@@ -119,23 +97,20 @@ export const deleteSkill = async (
   res: Response
 ) => {
   try {
+
     const { id } = req.params;
 
-    await prisma.skill.delete({
-      where: {
-        id: Number(id),
-      },
-    });
+    await skillService.deleteSkill(
+  Number(id)
+);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Skill deleted successfully",
     });
 
   } catch (error) {
-    console.error(error);
 
-    res.status(500).json({
-      message: "Failed to delete skill",
-    });
+    throw error;
+
   }
 };

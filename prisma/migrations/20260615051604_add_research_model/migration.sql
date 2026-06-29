@@ -8,7 +8,7 @@ CREATE TABLE "Research" (
     "pdfUrl" TEXT,
     "githubUrl" TEXT,
     "publicationUrl" TEXT,
-    "tags" TEXT[],
+    "tags" TEXT,
     "featured" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

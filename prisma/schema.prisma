@@ -20,120 +20,78 @@ model Project {
 }
 
 model Research {
-  id Int @id @default(autoincrement())
-
-  title       String
-  abstract    String
-  description String
-
-  researchImage String?
-
+  id             Int      @id @default(autoincrement())
+  title          String
+  abstract       String
+  description    String
+  researchImage  String?
   pdfUrl         String?
   githubUrl      String?
   publicationUrl String?
-
-  tags String[]
-
-  featured Boolean @default(false)
-
-  createdAt DateTime @default(now())
+  tags           String[]
+  featured       Boolean  @default(false)
+  createdAt      DateTime @default(now())
 }
 
 model Admin {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  password String
-
+  id               Int       @id @default(autoincrement())
+  email            String    @unique
+  password         String
+  createdAt        DateTime  @default(now())
   resetToken       String?
   resetTokenExpiry DateTime?
-
-  createdAt DateTime @default(now())
 }
 
 model Profile {
-  id Int @id @default(autoincrement())
-
-  fullName String
-
-  headline String
-
-  shortBio String
-
-  aboutMe String
-
+  id           Int      @id @default(autoincrement())
+  fullName     String
+  headline     String
+  shortBio     String
+  aboutMe      String
   profileImage String?
-
-  resumeUrl String?
-
-  email String?
-
-  location String?
-
-  githubUrl String?
-
-  linkedinUrl String?
-
-  kaggleUrl String?
-
-  twitterUrl String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  resumeUrl    String?
+  email        String?
+  location     String?
+  githubUrl    String?
+  linkedinUrl  String?
+  kaggleUrl    String?
+  twitterUrl   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model SkillCategory {
-  id Int @id @default(autoincrement())
-
-  title String
-
-  icon String?
-
-  order Int @default(0)
-
-  skills Skill[]
-
+  id        Int      @id @default(autoincrement())
+  title     String
+  icon      String?
+  order     Int      @default(0)
   createdAt DateTime @default(now())
+  skills    Skill[]
 }
 
 model Skill {
-  id Int @id @default(autoincrement())
-
-  name String
-
-  level Int? @default(80)
-
-  icon String?
-
-  displayOrder Int @default(1)
-
-  featured Boolean @default(false)
-
-  categoryId Int
-
-  category SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
+  id           Int           @id @default(autoincrement())
+  name         String
+  categoryId   Int
+  createdAt    DateTime      @default(now())
+  order Int           @default(1)
+  featured     Boolean       @default(false)
+  icon         String?
+  level        Int?          @default(80)
+  category     SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }
 
 model Experience {
-  id Int @id @default(autoincrement())
-
-  company  String
-  position String
-
-  location String?
-
-  startDate DateTime
-  endDate   DateTime?
-
-  currentlyWorking Boolean @default(false)
-
-  description String
-
-  companyLogo String?
-
-  displayOrder Int @default(1)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               Int       @id @default(autoincrement())
+  company          String
+  position         String
+  location         String?
+  startDate        DateTime
+  endDate          DateTime?
+  currentlyWorking Boolean   @default(false)
+  description      String
+  companyLogo      String?
+  displayOrder     Int       @default(1)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }

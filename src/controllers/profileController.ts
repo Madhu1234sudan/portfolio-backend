@@ -1,24 +1,29 @@
 import { Request, Response } from "express";
-import prisma from "../config/prisma";
-
+import { ProfileService } from "../services/profile.service";
+const profileService = new ProfileService();
 export const getProfile = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const profile =
-      await prisma.profile.findFirst();
+  const profile =
+    await profileService.getProfile();
 
-    res.status(200).json(profile);
-
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message:
-        "Failed to fetch profile",
+  if (!profile) {
+    return res.status(404).json({
+      message: "Profile not found.",
     });
   }
+
+  return res.status(200).json(profile);
+
+} catch (error) {
+  console.error(error);
+
+  return res.status(500).json({
+    message: "Failed to fetch profile",
+  });
+}
 };
 
 export const updateProfile = async (
@@ -26,38 +31,100 @@ export const updateProfile = async (
   res: Response
 ) => {
   try {
+    const {
+  fullName,
+  headline,
+  shortBio,
+  aboutMe,
+  profileImage,
+  resumeUrl,
+  email,
+  location,
+  githubUrl,
+  linkedinUrl,
+  kaggleUrl,
+  twitterUrl,
+} = req.body;
+if (!fullName?.trim()) {
+  return res.status(400).json({
+    message: "Full name is required.",
+  });
+}
+
+if (!headline?.trim()) {
+  return res.status(400).json({
+    message: "Headline is required.",
+  });
+}
+
+if (!shortBio?.trim()) {
+  return res.status(400).json({
+    message: "Short bio is required.",
+  });
+}
+
+if (!aboutMe?.trim()) {
+  return res.status(400).json({
+    message: "About Me is required.",
+  });
+}
     const existingProfile =
-      await prisma.profile.findFirst();
+  await profileService.getExistingProfile();
 
     if (!existingProfile) {
-      const profile =
-        await prisma.profile.create({
-          data: req.body,
-        });
 
-      return res
-        .status(201)
-        .json(profile);
-    }
+  const profile =
+    await profileService.createProfile({
+      fullName,
+      headline,
+      shortBio,
+      aboutMe,
+      profileImage,
+      resumeUrl,
+      email,
+      location,
+      githubUrl,
+      linkedinUrl,
+      kaggleUrl,
+      twitterUrl,
+    });
+
+  return res
+    .status(201)
+    .json(profile);
+}
+
+      
+    
 
     const updatedProfile =
-      await prisma.profile.update({
-        where: {
-          id: existingProfile.id,
-        },
-        data: req.body,
-      });
+  await profileService.updateProfile(
+    existingProfile.id,
+    {
+      fullName,
+      headline,
+      shortBio,
+      aboutMe,
+      profileImage,
+      resumeUrl,
+      email,
+      location,
+      githubUrl,
+      linkedinUrl,
+      kaggleUrl,
+      twitterUrl,
+    }
+  );
 
-    res.status(200).json(
-      updatedProfile
-    );
+return res.status(200).json(
+  updatedProfile
+);
 
-  } catch (error) {
-    console.error(error);
+} catch (error) {
+  console.error(error);
 
-    res.status(500).json({
-      message:
-        "Failed to update profile",
-    });
-  }
+  return res.status(500).json({
+    message: "Failed to update profile",
+  });
+}
 };
